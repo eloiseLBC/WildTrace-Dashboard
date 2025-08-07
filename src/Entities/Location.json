@@ -1,0 +1,46 @@
+{
+  "name": "Location",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Location name"
+    },
+    "country": {
+      "type": "string",
+      "description": "Country name"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Latitude coordinate"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Longitude coordinate"
+    },
+    "arrival_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When you arrived at this location"
+    },
+    "departure_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When you left this location"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Representative image of the location"
+    },
+    "description": {
+      "type": "string",
+      "description": "Personal notes about this location"
+    }
+  },
+  "required": [
+    "name",
+    "latitude",
+    "longitude",
+    "arrival_date"
+  ]
+}

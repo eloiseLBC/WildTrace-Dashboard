@@ -1,0 +1,65 @@
+{
+  "name": "JournalEntry",
+  "type": "object",
+  "properties": {
+    "location_id": {
+      "type": "string",
+      "description": "Reference to location"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of journal entry"
+    },
+    "title": {
+      "type": "string",
+      "description": "Entry title"
+    },
+    "content": {
+      "type": "string",
+      "description": "Journal entry content"
+    },
+    "emotions": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "calm",
+          "joy",
+          "excitement",
+          "fear",
+          "anxiety",
+          "fatigue",
+          "wonder",
+          "peace",
+          "stress",
+          "curiosity",
+          "melancholy",
+          "euphoria"
+        ]
+      },
+      "description": "Tagged emotions"
+    },
+    "mood_score": {
+      "type": "number",
+      "description": "Overall mood score (1-10)"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Attached image"
+    },
+    "audio_url": {
+      "type": "string",
+      "description": "Attached audio note"
+    },
+    "highlight_moment": {
+      "type": "boolean",
+      "description": "Mark as a highlight moment"
+    }
+  },
+  "required": [
+    "location_id",
+    "date",
+    "content"
+  ]
+}

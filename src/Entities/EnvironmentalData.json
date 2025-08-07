@@ -1,0 +1,51 @@
+{
+  "name": "EnvironmentalData",
+  "type": "object",
+  "properties": {
+    "location_id": {
+      "type": "string",
+      "description": "Reference to location"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of measurement"
+    },
+    "temperature_avg": {
+      "type": "number",
+      "description": "Average temperature in Celsius"
+    },
+    "temperature_min": {
+      "type": "number",
+      "description": "Minimum temperature in Celsius"
+    },
+    "temperature_max": {
+      "type": "number",
+      "description": "Maximum temperature in Celsius"
+    },
+    "humidity": {
+      "type": "number",
+      "description": "Humidity percentage"
+    },
+    "light_exposure": {
+      "type": "number",
+      "description": "Light exposure in lux"
+    },
+    "air_quality_index": {
+      "type": "number",
+      "description": "Air quality index"
+    },
+    "noise_level": {
+      "type": "number",
+      "description": "Noise level in decibels"
+    },
+    "weather_condition": {
+      "type": "string",
+      "description": "Weather condition description"
+    }
+  },
+  "required": [
+    "location_id",
+    "date"
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "name": "BiologicalData",
+  "type": "object",
+  "properties": {
+    "location_id": {
+      "type": "string",
+      "description": "Reference to location"
+    },
+    "date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Date and time of measurement"
+    },
+    "heart_rate_resting": {
+      "type": "number",
+      "description": "Resting heart rate in BPM"
+    },
+    "heart_rate_active": {
+      "type": "number",
+      "description": "Active heart rate in BPM"
+    },
+    "heart_rate_variability": {
+      "type": "number",
+      "description": "Heart rate variability"
+    },
+    "body_temperature": {
+      "type": "number",
+      "description": "Body temperature in Celsius"
+    },
+    "sleep_quality_score": {
+      "type": "number",
+      "description": "Sleep quality score (1-10)"
+    },
+    "sleep_duration": {
+      "type": "number",
+      "description": "Sleep duration in hours"
+    },
+    "respiratory_rate": {
+      "type": "number",
+      "description": "Respiratory rate per minute"
+    },
+    "activity_level": {
+      "type": "number",
+      "description": "Activity level score (1-10)"
+    },
+    "stress_level": {
+      "type": "number",
+      "description": "Perceived stress level (1-10)"
+    }
+  },
+  "required": [
+    "location_id",
+    "date"
+  ]
+}
