@@ -154,7 +154,7 @@ export default function Journal({ loaders }) {
             {/* Header */}
             <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-[color:var(--gold-accent)] to-[color:var(--terracotta)] rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[color:purple]/70 to-[color:var(--stone)] rounded-xl flex items-center justify-center">
                         <BookOpen className="w-5 h-5 text-white" />
                     </div>
                     <div>
@@ -249,7 +249,7 @@ export default function Journal({ loaders }) {
 
             {/* Highlights */}
             {!!highlightMoments.length && (
-                <div className="rounded-2xl border border-[color:var(--gold-accent)]/30 bg-white/90 backdrop-blur p-5">
+                <div className="rounded-2xl border border-[color:var(--sage-soft)]/20 bg-white/90 backdrop-blur p-5">
                     <div className="flex items-center gap-2 mb-3" style={{ color: "var(--forest-deep)" }}>
                         <Star className="w-5 h-5" style={{ color: "var(--gold-accent)" }} />
                         <h3 className="font-semibold">Highlight Moments</h3>
@@ -261,7 +261,7 @@ export default function Journal({ loaders }) {
                                     <h4 className="font-semibold text-[color:var(--forest-deep)]">{entry.title}</h4>
                                     <span className="inline-flex items-center gap-1 text-xs rounded-full border px-2 py-0.5">{getLocationName(entry.location_id)}</span>
                                 </div>
-                                <p className="text-sm text-[color:var(--sage-soft)] leading-relaxed mb-3">
+                                <p className="text-sm leading-relaxed mb-3">
                                     {entry.content?.length > 120 ? `${entry.content.slice(0, 120)}...` : entry.content}
                                 </p>
                                 <div className="flex gap-1 flex-wrap">

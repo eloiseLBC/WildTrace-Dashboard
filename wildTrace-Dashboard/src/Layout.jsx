@@ -21,8 +21,8 @@ function DesktopSidebar({ location }) {
           <Compass className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h2 className="font-bold text-green-900 text-lg tracking-tight">Living Data</h2>
-          <p className="text-xs text-green-300 font-medium">Experience Dashboard</p>
+          <h2 className="font-bold text-green-900 text-lg tracking-tight">WildTrace</h2>
+          <p className="text-xs text-green-900 font-medium">Experience Dashboard</p>
         </div>
       </div>
       <nav className="p-3 overflow-y-auto">

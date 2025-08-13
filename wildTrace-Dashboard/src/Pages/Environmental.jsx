@@ -15,7 +15,7 @@ import {
     PolarRadiusAxis,
     Radar,
 } from "recharts";
-import { Leaf, Thermometer, Droplets, Sun, Wind, Activity } from "lucide-react";
+import {Leaf, Thermometer, Droplets, Sun, Wind, Activity, BookOpen} from "lucide-react";
 import { format } from "date-fns";
 
 /**
@@ -172,7 +172,7 @@ export default function Environmental({ loaders }) {
             {/* Header */}
             <div className="space-y-4">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-grey rounded-xl flex items-center justify-center">
+                    <div className="w-10 h-10 bg-gradient-to-br from-[color:green] to-[color:green-light] rounded-xl flex items-center justify-center">
                         <Leaf className="w-5 h-5 text-white" />
                     </div>
                     <div>
@@ -180,6 +180,7 @@ export default function Environmental({ loaders }) {
                         <p className="text-[color:var(--sage-soft)] font-medium">How the world's conditions shaped your journey</p>
                     </div>
                 </div>
+
 
                 <div className="flex flex-wrap gap-2 items-center">
                     {/* Select (native) */}
