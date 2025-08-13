@@ -1,21 +1,9 @@
 // src/pages/JourneyMap.jsx
 import React, { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet";
 import { MapPin, Thermometer, BookOpen } from "lucide-react";
 import { format } from "date-fns";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+import JourneyGlobe from "../components/JourneyGlobe";
 
-// --- Fix des icônes Leaflet avec Vite ---
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-    iconRetinaUrl:
-        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-    iconUrl:
-        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-    shadowUrl:
-        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-});
 
 /* -------------------- DONNÉES FACTICES -------------------- */
 const MOCK_LOCATIONS = [
@@ -182,45 +170,10 @@ export default function JourneyMap() {
                 <div className="lg:col-span-2 lg:row-start-2">
                     <div className="bg-gray-100 rounded-2xl shadow-md border border-gray-200 overflow-hidden">
                         <div className="h-[560px]">
-                            <MapContainer
-                                center={mapCenter}
-                                zoom={2}
-                                scrollWheelZoom
-                                style={{ height: "100%", width: "100%" }}
-                            >
-                                <TileLayer
-                                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                    attribution="&copy; OpenStreetMap contributors"
-                                />
+                            <div className="lg:col-span-2 lg:row-start-2">
+                                <JourneyGlobe locations={locations} />
+                            </div>
 
-                                {path.length >= 2 && (
-                                    <Polyline
-                                        positions={path}
-                                        color="#9caf88" // sauge
-                                        weight={3}
-                                        opacity={0.6}
-                                        dashArray="6, 10"
-                                    />
-                                )}
-
-                                {locations.map((loc) => (
-                                    <Marker
-                                        key={loc.id}
-                                        position={[loc.latitude, loc.longitude]}
-                                        eventHandlers={{ click: () => setSelected(loc) }}
-                                    >
-                                        <Popup>
-                                            <div className="text-sm">
-                                                <div className="font-semibold">{loc.name}</div>
-                                                <div className="text-gray-500">{loc.country}</div>
-                                                <div className="mt-1">
-                                                    {format(new Date(loc.arrival_date), "MMM d, yyyy")}
-                                                </div>
-                                            </div>
-                                        </Popup>
-                                    </Marker>
-                                ))}
-                            </MapContainer>
                         </div>
                     </div>
                 </div>
