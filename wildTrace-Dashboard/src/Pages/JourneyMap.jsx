@@ -17,6 +17,92 @@ L.Icon.Default.mergeOptions({
         "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
 });
 
+/* -------------------- DONNÉES FACTICES -------------------- */
+const MOCK_LOCATIONS = [
+    {
+        id: "tokyo",
+        name: "Tokyo",
+        country: "Japan",
+        latitude: 35.6762,
+        longitude: 139.6503,
+        arrival_date: "2024-01-15",
+        departure_date: "2024-02-01",
+        image_url:
+            "https://images.unsplash.com/photo-1505060895281-933ee13f76ea?q=80&w=1600&auto=format&fit=crop",
+        description:
+            "Bustling metropolis with incredible energy. The contrast between ancient temples and modern skyscrapers created a unique atmosphere that felt both overwhelming and inspiring.",
+    },
+    {
+        id: "paris",
+        name: "Paris",
+        country: "France",
+        latitude: 48.8566,
+        longitude: 2.3522,
+        arrival_date: "2024-03-05",
+        departure_date: "2024-03-20",
+        image_url:
+            "https://images.unsplash.com/photo-1508057198894-247b23fe5ade?q=80&w=1600&auto=format&fit=crop",
+        description:
+            "Cafés ensoleillés, balades le long de la Seine, musées et petits marchés du week-end.",
+    },
+    {
+        id: "lima",
+        name: "Lima",
+        country: "Peru",
+        latitude: -12.0464,
+        longitude: -77.0428,
+        arrival_date: "2024-04-10",
+        departure_date: "2024-04-25",
+        image_url:
+            "https://images.unsplash.com/photo-1543352634-8730cde56b5d?q=80&w=1600&auto=format&fit=crop",
+        description:
+            "Côte pacifique, brume matinale, ceviche et falaises de Miraflores.",
+    },
+    {
+        id: "cape-town",
+        name: "Cape Town",
+        country: "South Africa",
+        latitude: -33.9249,
+        longitude: 18.4241,
+        arrival_date: "2024-05-12",
+        departure_date: "2024-05-28",
+        image_url:
+            "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?q=80&w=1600&auto=format&fit=crop",
+        description:
+            "Table Mountain majestueuse, vent marin et lumière dorée en fin d’après-midi.",
+    },
+    {
+        id: "sydney",
+        name: "Sydney",
+        country: "Australia",
+        latitude: -33.8688,
+        longitude: 151.2093,
+        arrival_date: "2024-06-10",
+        departure_date: "2024-06-24",
+        image_url:
+            "https://images.unsplash.com/photo-1506976785307-8732e854ad75?q=80&w=1600&auto=format&fit=crop",
+        description:
+            "Baie mythique, surf à Bondi, ciel bleu quasi permanent et rythme détendu.",
+    },
+];
+
+// pour les compteurs uniquement
+const MOCK_ENV = [
+    { id: 1, location_id: "tokyo" },
+    { id: 2, location_id: "paris" },
+    { id: 3, location_id: "sydney" },
+    { id: 4, location_id: "cape-town" },
+    { id: 5, location_id: "lima" },
+    { id: 6, location_id: "tokyo" },
+];
+
+const MOCK_JOURNAL = [
+    { id: 1, location_id: "tokyo" },
+    { id: 2, location_id: "paris" },
+    { id: 3, location_id: "paris" },
+    { id: 4, location_id: "cape-town" },
+];
+
 export default function JourneyMap() {
     const [locations, setLocations] = useState([]);
     const [environmentalData, setEnvironmental] = useState([]);
@@ -24,36 +110,22 @@ export default function JourneyMap() {
     const [selected, setSelected] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    // Charge les données réelles de ton projet
+    // Simule un chargement async (aucune API)
     useEffect(() => {
-        let cancelled = false;
-        (async () => {
-            try {
-                const [locs, env, journ] = await Promise.all([
-                    Location.list("arrival_date"),
-                    EnvironmentalData.list(),
-                    JournalEntry.list(),
-                ]);
-                if (cancelled) return;
-
-                const sorted = (locs ?? []).slice().sort(
-                    (a, b) => new Date(a.arrival_date) - new Date(b.arrival_date)
-                );
-
-                setLocations(sorted);
-                setEnvironmental(env ?? []);
-                setJournal(journ ?? []);
-                setSelected(sorted[0] ?? null);
-            } catch (e) {
-                console.error("Error loading data:", e);
-            } finally {
-                if (!cancelled) setLoading(false);
-            }
-        })();
-        return () => { cancelled = true; };
+        const timer = setTimeout(() => {
+            const sorted = MOCK_LOCATIONS.slice().sort(
+                (a, b) => new Date(a.arrival_date) - new Date(b.arrival_date)
+            );
+            setLocations(sorted);
+            setEnvironmental(MOCK_ENV);
+            setJournal(MOCK_JOURNAL);
+            setSelected(sorted[0]); // sélectionner la première
+            setLoading(false);
+        }, 300);
+        return () => clearTimeout(timer);
     }, []);
 
-    // Trajet + centre carte
+    // Chemin de voyage et centre de la carte
     const path = useMemo(
         () => locations.map((l) => [l.latitude, l.longitude]),
         [locations]
@@ -91,9 +163,9 @@ export default function JourneyMap() {
                 </p>
             </div>
 
-            {/* GRID à 2 lignes : (1) Pills  (2) Carte + Panneau */}
+            {/* GRID à 2 lignes : (1) Pills  (2) Carte + Panneau alignés */}
             <div className="grid gap-6 lg:grid-cols-3 lg:grid-rows-[auto_1fr]">
-                {/* LIGNE 1 — Col gauche : Pills */}
+                {/* LIGNE 1 — Pills */}
                 <div className="flex flex-wrap gap-2 lg:col-span-2 lg:row-start-1">
                     <Pill icon={<MapPin className="w-3.5 h-3.5" />}>
                         {locations.length} locations
@@ -106,7 +178,7 @@ export default function JourneyMap() {
                     </Pill>
                 </div>
 
-                {/* LIGNE 2 — Col gauche : Carte */}
+                {/* LIGNE 2 — Carte */}
                 <div className="lg:col-span-2 lg:row-start-2">
                     <div className="bg-gray-100 rounded-2xl shadow-md border border-gray-200 overflow-hidden">
                         <div className="h-[560px]">
@@ -118,13 +190,13 @@ export default function JourneyMap() {
                             >
                                 <TileLayer
                                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                    attribution='&copy; OpenStreetMap contributors'
+                                    attribution="&copy; OpenStreetMap contributors"
                                 />
 
                                 {path.length >= 2 && (
                                     <Polyline
                                         positions={path}
-                                        color="#9caf88"     // sauge
+                                        color="#9caf88" // sauge
                                         weight={3}
                                         opacity={0.6}
                                         dashArray="6, 10"
@@ -153,7 +225,7 @@ export default function JourneyMap() {
                     </div>
                 </div>
 
-                {/* LIGNE 2 — Col droite : Panneau détails (aligné en haut de la carte) */}
+                {/* LIGNE 2 — Panneau détails (aligné en haut de la carte) */}
                 <div className="lg:col-start-3 lg:row-start-2 self-start">
                     {!selected ? (
                         <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center text-gray-500 shadow-md">

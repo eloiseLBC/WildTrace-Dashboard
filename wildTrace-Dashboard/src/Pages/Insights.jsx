@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Brain, Lightbulb, TrendingUp, Heart, Thermometer, BookOpen, Sparkles, RefreshCw } from "lucide-react";
-import { format } from "date-fns";
 import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
 
 /**

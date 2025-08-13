@@ -15,7 +15,7 @@ import {
     PolarRadiusAxis,
     Radar,
 } from "recharts";
-import { Thermometer, Droplets, Sun, Wind, Activity } from "lucide-react";
+import { Leaf, Thermometer, Droplets, Sun, Wind, Activity } from "lucide-react";
 import { format } from "date-fns";
 
 /**
@@ -173,7 +173,7 @@ export default function Environmental({ loaders }) {
             <div className="space-y-4">
                 <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-grey rounded-xl flex items-center justify-center">
-                        <Thermometer className="w-5 h-5 text-white" />
+                        <Leaf className="w-5 h-5 text-white" />
                     </div>
                     <div>
                         <h1 className="text-3xl font-bold text-[color:var(--forest-deep)] tracking-tight">Environmental Data</h1>
