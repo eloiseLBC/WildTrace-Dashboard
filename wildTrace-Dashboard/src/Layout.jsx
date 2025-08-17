@@ -5,7 +5,7 @@ import { Map, BarChart3, Heart, BookOpen, Brain, Database, Compass, Menu } from 
 const createPageUrl = (pageName) => `/${String(pageName || "").toLowerCase()}`;
 
 const navigationItems = [
-  { title: "Journey Map", url: createPageUrl("JourneyMap"), icon: Map, description: "Your global path" },
+  { title: "Journey Map", url: createPageUrl("JourneyMap"), icon: Map, description: "My global path" },
   { title: "Environment", url: createPageUrl("Environmental"), icon: BarChart3, description: "Climate & conditions" },
   { title: "Biology", url: createPageUrl("Biological"), icon: Heart, description: "Body responses" },
   { title: "Journal", url: createPageUrl("Journal"), icon: BookOpen, description: "Emotions & stories" },
@@ -17,8 +17,8 @@ function DesktopSidebar({ location }) {
   return (
     <aside className="border-r border-stone-200 bg-white/90 backdrop-blur-md w-72 shrink-0 hidden md:flex md:flex-col">
       <div className="border-b border-stone-200 p-6 flex items-center gap-3">
-        <div className="w-10 h-10 bg-gradient-to-br from-green-900 to-green-300 rounded-xl flex items-center justify-center">
-          <Compass className="w-6 h-6 text-white" />
+        <div className="w-10 h-10 rounded-xl flex items-center justify-center">
+          <img src="/textures/logo_layout.png" alt="WildTrace Logo" className="absolute w-10 h-10" />
         </div>
         <div>
           <h2 className="font-bold text-green-900 text-lg tracking-tight">WildTrace</h2>

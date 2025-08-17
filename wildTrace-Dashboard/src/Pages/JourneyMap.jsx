@@ -1,9 +1,25 @@
 // src/pages/JourneyMap.jsx
 import React, { useEffect, useMemo, useState } from "react";
+import { MapContainer, Marker, Popup, Polyline, LayersControl } from "react-leaflet";
 import { MapPin, Thermometer, BookOpen } from "lucide-react";
 import { format } from "date-fns";
-import JourneyGlobe from "../components/JourneyGlobe";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+import WrappedEarth from "../components/WrappedEarth";
 
+const { BaseLayer, Overlay } = LayersControl;
+
+
+// --- Fix des icônes Leaflet avec Vite ---
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+    iconUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+    shadowUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+});
 
 /* -------------------- DONNÉES FACTICES -------------------- */
 const MOCK_LOCATIONS = [
@@ -170,9 +186,47 @@ export default function JourneyMap() {
                 <div className="lg:col-span-2 lg:row-start-2">
                     <div className="bg-gray-100 rounded-2xl shadow-md border border-gray-200 overflow-hidden">
                         <div className="h-[560px]">
-                            <div className="lg:col-span-2 lg:row-start-2">
-                                <JourneyGlobe locations={locations} />
-                            </div>
+                            <MapContainer
+                                center={mapCenter}
+                                zoom={2}
+                                minZoom={1}
+                                maxZoom={7}
+                                scrollWheelZoom
+                                crs={L.CRS.EPSG4326}
+                                worldCopyJump
+                                attributionControl={false}
+                                style={{ height: "100%", width: "100%" }}
+                            >
+                                <LayersControl position="topright">
+                                    <BaseLayer checked name="Planisphère">
+                                        <WrappedEarth url="/textures/2k_earth_daymap.jpg" opacity={1} zIndex={100} />
+                                    </BaseLayer>
+
+                                    <Overlay checked name="Nuages">
+                                        <WrappedEarth url="/textures/8k_earth_clouds.jpg" opacity={0.28} zIndex={150} />
+                                    </Overlay>
+                                </LayersControl>
+
+                                {path.length >= 2 && (
+                                    <Polyline positions={path} color="#9caf88" weight={3} opacity={0.6} dashArray="6,10" />
+                                )}
+
+                                {locations.map((loc) => (
+                                    <Marker
+                                        key={loc.id}
+                                        position={[loc.latitude, loc.longitude]}
+                                        eventHandlers={{ click: () => setSelected(loc) }}
+                                    >
+                                        <Popup>
+                                            <div className="text-sm whitespace-normal break-words">
+                                                <div className="font-semibold">{loc.name}</div>
+                                                <div className="text-gray-500">{loc.country}</div>
+                                                <div className="mt-1">{format(new Date(loc.arrival_date), "MMM d, yyyy")}</div>
+                                            </div>
+                                        </Popup>
+                                    </Marker>
+                                ))}
+                            </MapContainer>
 
                         </div>
                     </div>
