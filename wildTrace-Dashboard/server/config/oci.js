@@ -1,15 +1,24 @@
 import * as common from "oci-common";
 import * as objectstorage from "oci-objectstorage";
+import { readOciSettings } from "./environment.js";
 
-// En développement local, le SDK utilise le profil DEFAULT
-// créé dans ~/.oci/config par `oci setup config`.
-const provider = new common.ConfigFileAuthenticationDetailsProvider(
-    undefined,
-    "DEFAULT"
-);
+export const ociSettings = readOciSettings();
+let client;
 
-const objectStorageClient = new objectstorage.ObjectStorageClient({
-    authenticationDetailsProvider: provider,
-});
+// Lazy creation keeps authentication errors inside the caller's error handling.
+export function getObjectStorageClient() {
+  if (!client) {
+    const provider = new common.ConfigFileAuthenticationDetailsProvider(
+      ociSettings.configFile,
+      ociSettings.profile
+    );
+    client = new objectstorage.ObjectStorageClient({ authenticationDetailsProvider: provider });
+  }
+  return client;
+}
 
-export { objectStorageClient };
+// Preserve compatibility with the existing Object Storage service.
+export const objectStorageClient = {
+  listObjects: (request) => getObjectStorageClient().listObjects(request),
+  getObject: (request) => getObjectStorageClient().getObject(request),
+};
