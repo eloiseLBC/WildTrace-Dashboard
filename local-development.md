@@ -1,8 +1,36 @@
 # Configuration et validation en local
 
-## Statut
+## Démarrage de la lecture réelle
 
-Ce guide décrit la procédure cible après implémentation. La branche de référence ne contient pas encore tous les éléments nécessaires. L’arbre GitHub examiné ne présente notamment pas de `package.json`, de fichier d’entrée React ni de `vite.config.js` : il faut retrouver ou ajouter ces fichiers avant de prétendre lancer et compiler le projet complet.
+La couche serveur lit maintenant les JSON quotidiens, et les pages Environmental, Biological et Insights appellent son API. Les exemples automatiques de ces trois pages ont été retirés. Le frontend complet reste celui de ton checkout local : ses fichiers d’entrée et son manifeste ne sont pas présents dans l’arbre GitHub examiné.
+
+Après récupération des modifications, conserve ton `.env` existant. Depuis le dossier `wildTrace-Dashboard/server` :
+
+```bash
+npm ci
+npm test
+npm run dev
+```
+
+Dans un second terminal, depuis `wildTrace-Dashboard` :
+
+```bash
+npm run dev
+```
+
+En développement Vite, les pages appellent par défaut `http://localhost:3001/api/dashboard`. Si ton serveur utilise un autre port, ajoute `VITE_API_BASE_URL=http://localhost:<port>` à ton `.env` et redémarre Vite. En production, configure le routage `/api` sur la même origine ou une URL API explicite.
+
+Le serveur autorise par défaut `http://localhost:5173`. Si Vite annonce une autre origine, renseigne `CORS_ORIGIN` dans `.env` puis redémarre le serveur. Plusieurs origines peuvent être séparées par des virgules. Le serveur local écoute sur `127.0.0.1`.
+
+Vérifications : ouvrir `/api/dashboard` sur le port serveur puis les pages Environment et Biology. La réponse doit contenir `data.environmental`, `data.biological`, `data.locations` et `meta`. `/api/health` ne teste pas OCI.
+
+La lecture partage un cache de 60 secondes. Le bouton Reload relit l’API ; il respecte ce cache. Les autres pages (Journal, JourneyMap et DataArchive) ne sont pas encore raccordées à cette source par ce changement.
+
+Les variables `PORT`, `CORS_ORIGIN`, `DAILY_CACHE_TTL_SECONDS`, `OCI_DOWNLOAD_CONCURRENCY` et `INSIGHTS_MIN_SLEEP_NIGHTS` sont désormais utilisées par le serveur. Les scores sont affichés sans supposer une échelle maximale. Les unités de pression, luminosité et CO₂ restent à confirmer dans le pipeline.
+
+## Plan initial et contexte
+
+Les sections suivantes conservent le plan initial. La configuration OCI et la lecture serveur décrites ci-dessus sont maintenant implémentées ; certains prérequis frontend restent à intégrer au repository. L’arbre GitHub examiné ne présente notamment pas de `package.json`, de fichier d’entrée React ni de `vite.config.js` : il faut retrouver ou ajouter ces fichiers avant de prétendre lancer et compiler le projet complet.
 
 ## Paramètres à obtenir
 
@@ -32,7 +60,7 @@ Références officielles : [configuration SDK/CLI](https://docs.oracle.com/en-us
 
 Copier `.env.example` vers `.env` dans le dossier applicatif, puis renseigner les valeurs. Ajouter `.env` au `.gitignore` et conserver `.env.example` versionné.
 
-Les noms proposés doivent être raccordés au code serveur. Le chargement du fichier `.env` devra être explicite, via le runtime Node choisi ou une bibliothèque adaptée ; sa seule présence ne configure pas le serveur actuel.
+Le serveur charge explicitement le `.env` situé dans `wildTrace-Dashboard/`, indépendamment du dossier courant. Les variables exportées dans le shell sont prioritaires. La gestion des fuseaux utilise Luxon.
 
 | Variable | Usage |
 |---|---|

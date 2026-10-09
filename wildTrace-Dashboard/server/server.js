@@ -1,55 +1,20 @@
-import express from "express";
-import cors from "cors";
+import { createApp } from "./app.js";
+import { getObjectStorageClient, ociSettings } from "./config/oci.js";
+import { readJsonObjects } from "./services/objectStorage.js";
+import { createDailyDataService } from "./services/dailyDataService.js";
 
-import { getEnvironmentalCaptures } from "./services/environmentalService.js";
-
-const app = express();
-
-const PORT = 3001;
-
-app.use(cors());
-app.use(express.json());
-
-
-// --------------------------------------------------
-// Health check
-// --------------------------------------------------
-
-app.get("/api/health", (req, res) => {
-    res.json({
-        status: "ok",
-        service: "WildTrace API",
-    });
-});
-
-
-// --------------------------------------------------
-// Environmental
-// --------------------------------------------------
-
-app.get("/api/environmental/captures", async (req, res) => {
-    try {
-        console.log("\nGET /api/environmental/captures");
-
-        const captures = await getEnvironmentalCaptures();
-
-        res.json(captures);
-    } catch (error) {
-        console.error(
-            "[Environmental] Erreur :",
-            error
-        );
-
-        res.status(500).json({
-            error: "Unable to retrieve environmental data",
-        });
-    }
-});
-
-
-app.listen(PORT, () => {
-    console.log("------------------------------------");
-    console.log("WildTrace API started");
-    console.log(`http://localhost:${PORT}`);
-    console.log("------------------------------------");
-});
+function integer(key, fallback, min, max) {
+  const raw = process.env[key]?.trim();
+  const value = raw ? Number(raw) : fallback;
+  if (!Number.isInteger(value) || value < min || value > max) throw new Error(`Invalid configuration: ${key}`);
+  return value;
+}
+const port = integer("PORT", 3001, 1, 65535);
+const ttlMs = integer("DAILY_CACHE_TTL_SECONDS", 60, 0, 86400) * 1000;
+const concurrency = integer("OCI_DOWNLOAD_CONCURRENCY", 5, 1, 50);
+const minSleepNights = integer("INSIGHTS_MIN_SLEEP_NIGHTS", 5, 1, 365);
+const origins = (process.env.CORS_ORIGIN || "http://localhost:5173").split(",").map((value) => value.trim()).filter(Boolean);
+const getDailyData = createDailyDataService({ ttlMs,
+  loadRecords: () => readJsonObjects({ client: getObjectStorageClient(), ...ociSettings, concurrency }) });
+const app = createApp({ getDailyData, origins, minSleepNights });
+app.listen(port, "127.0.0.1", () => console.log(`WildTrace API started at http://localhost:${port}`));

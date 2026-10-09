@@ -1,16 +1,18 @@
 # Local OCI configuration
 
 This first step configures the server SDK and provides a real LIST/GET connection check.
-It does not yet connect the React pages or implement the shared daily document service.
-The existing environmental service still contains the old source constants; do not use it
-as validation of the new daily source until that service is adapted.
+The server now also exposes the shared daily document API used by the environmental, biological
+and insights pages. Run npm run dev in this server directory and start Vite in a second terminal.
+The old environmental source constants have been removed. See the repository local-development.md
+for API URL, CORS and cache settings.
 
 ## Setup
 
 Requires Node.js 20.12 or newer. From the repository root:
 
 ```bash
-cp wildTrace-Dashboard/.env.example wildTrace-Dashboard/.env
+# If .env already exists, keep it and add any missing settings.
+# Create it from the template only if it does not exist.
 cd wildTrace-Dashboard/server
 npm ci
 npm test
@@ -18,7 +20,7 @@ npm run check:oci
 ```
 
 Edit the application .env with OCI_NAMESPACE, OCI_DAILY_BUCKET and OCI_DAILY_PREFIX.
-Leave OCI_DAILY_PREFIX empty when daily documents are at the bucket root.\nAn empty prefix lists the entire bucket, including any nested objects. Use a dedicated\nbucket for daily documents or set a prefix if other datasets are stored there.\nThese values identify the consolidated daily documents, not the raw capture files.
+These values identify the consolidated daily documents, not the raw capture files.
 OCI_CONFIG_PROFILE defaults to DEFAULT. OCI_CONFIG_FILE defaults to the SDK path
 ~/.oci/config. The file is loaded relative to the application; exported environment
 variables take precedence. Restart the command after changing configuration.
