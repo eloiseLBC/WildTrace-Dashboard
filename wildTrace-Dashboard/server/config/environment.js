@@ -16,7 +16,7 @@ export function readOciSettings(env = process.env) {
   };
   const namespaceName = required("OCI_NAMESPACE");
   const bucketName = required("OCI_DAILY_BUCKET");
-  const prefix = required("OCI_DAILY_PREFIX");
+  const prefix = env.OCI_DAILY_PREFIX?.trim() || "";
   const profile = env.OCI_CONFIG_PROFILE?.trim() || "DEFAULT";
   const rawPath = env.OCI_CONFIG_FILE?.trim();
   const configFile = !rawPath ? undefined : rawPath.startsWith("~/")

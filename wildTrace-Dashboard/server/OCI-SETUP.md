@@ -18,7 +18,7 @@ npm run check:oci
 ```
 
 Edit the application .env with OCI_NAMESPACE, OCI_DAILY_BUCKET and OCI_DAILY_PREFIX.
-These values identify the consolidated daily documents, not the raw capture files.
+Leave OCI_DAILY_PREFIX empty when daily documents are at the bucket root.\nAn empty prefix lists the entire bucket, including any nested objects. Use a dedicated\nbucket for daily documents or set a prefix if other datasets are stored there.\nThese values identify the consolidated daily documents, not the raw capture files.
 OCI_CONFIG_PROFILE defaults to DEFAULT. OCI_CONFIG_FILE defaults to the SDK path
 ~/.oci/config. The file is loaded relative to the application; exported environment
 variables take precedence. Restart the command after changing configuration.
