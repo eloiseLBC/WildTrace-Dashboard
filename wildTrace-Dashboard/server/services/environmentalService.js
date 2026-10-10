@@ -1,24 +1,13 @@
-import { getJsonObjects } from "./objectStorage.js";
-import { transformEnvironmentalData } from "../transformers/environmentalTransformer.js";
-
-const NAMESPACE = "TON_NAMESPACE_OCI";
-const ENVIRONMENTAL_BUCKET = "wildtrace-environmental";
-const COMPUTED_PREFIX = "collected/computed";
-
-export async function getEnvironmentalCaptures() {
-    console.log("[Environmental] Récupération des captures...");
-
-    const files = await getJsonObjects({
-        namespaceName: NAMESPACE,
-        bucketName: ENVIRONMENTAL_BUCKET,
-        prefix: COMPUTED_PREFIX,
-    });
-
-    const captures = files.flat();
-
-    console.log(
-        `[Environmental] ${captures.length} captures récupérées`
-    );
-
-    return transformEnvironmentalData(captures);
+import { summarize } from "../utils/statistics.js";
+export const getEnvironmentalCaptures = (data) => data.environmental;
+export function getEnvironmentalSummary(data) {
+  const groups = new Map();
+  for (const row of data.environmental) {
+    const key = row.date + ":" + row.location_id;
+    const group = groups.get(key) || [];
+    group.push(row); groups.set(key, group);
+  }
+  return [...groups.values()].map((rows) => ({ date: rows[0].date, location_id: rows[0].location_id,
+    capture_count: rows.length, metrics: Object.fromEntries(["temperature", "humidity", "pressure", "luminosity", "co2"]
+      .map((field) => [field, summarize(rows.map((row) => row[field]))])) }));
 }
