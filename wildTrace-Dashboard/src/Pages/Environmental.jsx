@@ -1,44 +1,48 @@
 import React, { useState } from "react";
-import { ResponsiveContainer, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
+import { Leaf, Thermometer, Droplets, Sun, Wind } from "lucide-react";
+import { ResponsiveContainer, LineChart, Line, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts";
 import { useDashboardData } from "../api/useDashboardData.js";
-import { DataFrame, Filters, MetricCard, average, display, inRange, locationName, isNumber } from "../components/DataView.jsx";
-const metrics = { temperature: "Temperature (°C)", humidity: "Humidity (%)", pressure: "Pressure",
-  luminosity: "Luminosity", co2: "CO₂" };
+import { Page, Controls, Panel, StatCard, Tabs, Toggles, Empty, ChartTooltip, palette, gridStyle, axisStyle, fmt, range, average, isNumber, inRange, locationName, dayLabel } from "../components/JourneyDataView.jsx";
+const metrics = { temperature: ["Temperature", "°C", palette.terra], humidity: ["Humidity", "%", palette.navy], luminosity: ["Light", "", palette.gold], co2: ["CO₂", "", palette.sage] };
 export default function Environmental({ loaders }) {
   const state = useDashboardData(loaders);
-  const [location, setLocation] = useState("all");
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-  const [metric, setMetric] = useState("temperature");
+  const [location, setLocation] = useState("all"), [from, setFrom] = useState(""), [to, setTo] = useState("");
+  const [metric, setMetric] = useState("temperature"), [tab, setTab] = useState("timeseries");
   const data = state.data;
   const rows = (data?.environmental || []).filter((row) => inRange(row, location, from, to));
-  const invalidRange = from && to && from > to;
-  const chart = rows.filter((row) => row.timestamp).map((row) => ({ ...row,
-    label: row.timestamp.slice(0, 16).replace("T", " ") + " " + row.timestamp.slice(-6),
-    place: locationName(data.locations, row.location_id) }));
-  return <DataFrame title="Environmental Data" subtitle="Environmental captures from your daily OCI documents" state={state}>
+  const daily = (data?.environmentalSummary || []).filter((row) => inRange(row, location, from, to));
+  const [min, max] = range(rows.map((row) => row.temperature));
+  const series = rows.filter((row) => row.timestamp).map((row) => ({ ...row, label: dayLabel(row.date) + " · " + row.timestamp.slice(11,16), place: locationName(data.locations, row.location_id) }));
+  const comparison = [...new Set(daily.map((row) => row.location_id))].map((id) => ({ place: locationName(data.locations, id), value: average(daily.filter((row) => row.location_id === id).map((row) => row.metrics[metric]?.avg)) }));
+  const [label, unit, color] = metrics[metric];
+  const toggles = <Toggles options={Object.entries(metrics).map(([key, value]) => [key, value[0]])} value={metric} onChange={setMetric} />;
+  return <Page title="Environmental Data" subtitle="How the world's conditions shaped your journey" icon={Leaf} state={state}>
     {data && <>
-      <Filters locations={data.locations} {...{ location, setLocation, from, setFrom, to, setTo }} />
-      {invalidRange ? <p role="alert">The start date must be before the end date.</p> : !rows.length ? <p>No environmental data for these filters.</p> : <>
-        <p className="text-sm">{rows.length} captures · Averages describe the collected measurements.</p>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">{Object.entries(metrics).map(([key, title]) => <MetricCard key={key} title={title}
-          value={display(average(rows.map((row) => row[key])), key === "temperature" ? "°C" : key === "humidity" ? "%" : "")}
-          note={rows.filter((row) => isNumber(row[key])).length + " valid measurements"} />)}</div>
-        <p className="text-xs text-stone-600">Pressure, luminosity and CO₂ are shown in source units pending unit confirmation. CO₂ is not AQI.</p>
-        <section className="bg-white rounded-2xl border border-stone-200 p-4">
-          <label>Chart metric<select className="ml-3 border rounded p-2" value={metric} onChange={(event) => setMetric(event.target.value)}>{Object.entries(metrics).map(([key, title]) => <option key={key} value={key}>{title}</option>)}</select></label>
-          {chart.some((row) => isNumber(row[metric])) ? <div className="h-80 mt-4"><ResponsiveContainer width="100%" height="100%"><LineChart data={chart}>
-            <CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="label" tick={{ fontSize: 11 }} minTickGap={50} /><YAxis domain={["auto", "auto"]} /><Tooltip />
-            <Line type="linear" dataKey={metric} name={metrics[metric]} stroke="#1a5c40" strokeWidth={2} dot={false} connectNulls={false} />
-          </LineChart></ResponsiveContainer></div> : <p className="mt-4">No timestamped measurements for this metric.</p>}
-        </section>
-        <section className="bg-white rounded-2xl border border-stone-200 p-4 overflow-x-auto"><h2 className="font-semibold mb-3">Captures</h2>
-          <table className="w-full text-sm text-left"><thead><tr>{["Time", "Location", ...Object.values(metrics)].map((title) => <th className="p-2 border-b" key={title}>{title}</th>)}</tr></thead>
-            <tbody>{rows.map((row) => <tr key={row.id}><td className="p-2 border-b whitespace-nowrap">{row.timestamp || (row.timestamp_raw ? row.timestamp_raw + " (timezone unresolved)" : row.date)}</td><td className="p-2 border-b">{locationName(data.locations, row.location_id)}</td>
-              {Object.keys(metrics).map((key) => <td className="p-2 border-b" key={key} title={row.sources?.[key] || "Source unspecified"}>{display(row[key])}</td>)}
-            </tr>)}</tbody></table>
-        </section>
+      <Controls locations={data.locations} {...{ location, setLocation, from, setFrom, to, setTo }} count={rows.length} />
+      {from && to && from > to ? <Empty>The start date must be before the end date.</Empty> : !rows.length ? <Empty /> : <>
+        <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-6">
+          <StatCard title="Temperature" icon={Thermometer} accent={palette.terra} value={fmt(average(rows.map((r) => r.temperature)))} unit="°C" note={"Range: " + fmt(min) + "° – " + fmt(max) + "°"} />
+          <StatCard title="Humidity" icon={Droplets} accent={palette.navy} value={fmt(average(rows.map((r) => r.humidity)), 0)} unit="%" note="Average relative humidity" />
+          <StatCard title="Light Exposure" icon={Sun} accent={palette.gold} value={fmt(average(rows.map((r) => r.luminosity)), 0)} note="Average measured luminosity" />
+          <StatCard title="CO₂" icon={Wind} value={fmt(average(rows.map((r) => r.co2)), 0)} note="Average measured concentration" />
+        </div>
+        <div className="space-y-6"><Tabs options={[["timeseries", "Time Series"], ["comparison", "Location Comparison"], ["daily", "Daily Overview"]]} value={tab} onChange={setTab} />
+          {tab === "timeseries" && <Panel title="Environmental Conditions Over Time" controls={toggles}>
+            {series.some((row) => isNumber(row[metric])) ? <div style={{ height: 400 }}><ResponsiveContainer width="100%" height="100%"><LineChart data={series} margin={{ top: 12, right: 20, bottom: 8, left: 0 }}>
+              <CartesianGrid {...gridStyle} /><XAxis dataKey="label" {...axisStyle} minTickGap={60} /><YAxis {...axisStyle} domain={["auto", "auto"]} width={45} /><Tooltip content={<ChartTooltip />} />
+              <Line type="monotone" dataKey={metric} name={label} unit={unit} stroke={color} strokeWidth={2.5} dot={series.length === 1 ? { r: 4 } : false} activeDot={{ r: 5, stroke: "white", strokeWidth: 2 }} connectNulls={false} />
+            </LineChart></ResponsiveContainer></div> : <Empty>No timestamped measurements for this metric.</Empty>}
+          </Panel>}
+          {tab === "comparison" && <Panel title={label + " Comparison by Location"} controls={toggles}>
+            {comparison.some((row) => isNumber(row.value)) ? <div style={{ height: 400 }}><ResponsiveContainer width="100%" height="100%"><BarChart data={comparison} barSize={42}>
+              <CartesianGrid {...gridStyle} /><XAxis dataKey="place" {...axisStyle} /><YAxis {...axisStyle} /><Tooltip content={<ChartTooltip />} cursor={{ fill: "#9caf8812" }} /><Bar dataKey="value" name={label} unit={unit} fill={color} fillOpacity={0.65} radius={[8,8,0,0]} />
+            </BarChart></ResponsiveContainer></div> : <Empty />}
+            <p className="text-xs mt-4" style={{ color: palette.sage }}>Each valid daily average has equal weight.</p>
+          </Panel>}
+          {tab === "daily" && <Panel title="Daily Environmental Overview"><div className="overflow-x-auto"><table className="w-full text-sm text-left"><thead><tr>{["Day", "Location", "Temperature", "Humidity", "Light", "CO₂"].map((title) => <th key={title} className="py-3 pr-5 font-medium" style={{ color: palette.sage }}>{title}</th>)}</tr></thead><tbody>{daily.map((row) => <tr key={row.date + row.location_id} style={{ borderTop: "1px solid #e8e2d455" }}><td className="py-3 pr-5">{dayLabel(row.date)}</td><td className="py-3 pr-5">{locationName(data.locations, row.location_id)}</td>{["temperature", "humidity", "luminosity", "co2"].map((key) => <td className="py-3 pr-5" key={key}>{fmt(row.metrics[key]?.avg)}</td>)}</tr>)}</tbody></table></div></Panel>}
+        </div>
+        <details className="text-xs" style={{ color: palette.sage }}><summary className="cursor-pointer">About these measurements</summary><p className="mt-2">Averages describe collected captures. Pressure, luminosity and CO₂ retain their source units until confirmed. Missing values are excluded.</p></details>
       </>}
     </>}
-  </DataFrame>;
+  </Page>;
 }
